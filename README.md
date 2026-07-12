@@ -1,6 +1,6 @@
 # 📧 AI Email Assistant with n8n & Google Gemini
 
-An AI-powered email assistant built with *n8n, **Google Gemini, **Gmail, **Google Sheets, **Google Calendar, and **Telegram*.
+An AI-powered email assistant built with **n8n**, **Google Gemini**, **Gmail**, **Google Sheets**, **Google Calendar**, and **Telegram**.
 
 ## 🚀 Features
 
@@ -26,4 +26,61 @@ An AI-powered email assistant built with *n8n, **Google Gemini, **Gmail, **Googl
 - Google Sheets API
 - Google Calendar API
 - Telegram Bot API
-- D…
+- Docker
+
+---
+
+## 🔄 Workflow
+
+Gmail Trigger
+↓
+Get Email
+↓
+AI Agent (Google Gemini)
+↓
+Structured Output Parser
+↓
+Google Sheets
+↓
+IF (Meeting Detected?)
+├── Yes → Google Calendar → Telegram
+└── No → End
+
+---
+
+## 📂 AI Output
+
+The AI extracts:
+
+- Summary
+- Category
+- Priority
+- Suggested Reply
+- Needs Reply
+- Action Items
+- Meeting Date
+- Meeting Time
+
+---
+
+## 📌 Future Improvements
+
+- Auto-create Gmail Draft replies.
+- Email sentiment analysis.
+- Spam detection.
+- Multi-language support.
+- Dashboard for analytics.
+- Slack & Discord notifications.
+
+---
+
+## 👨‍💻 Author
+
+**Omar Mohammed**
+
+Computer Engineering Student
+
+Interested in AI Automation, Cybersecurity, and Python.
+
+GitHub:
+https://github.com/om01158946425-bit
