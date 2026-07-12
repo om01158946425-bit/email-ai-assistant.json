@@ -1,0 +1,500 @@
+{
+  "name": "email ai assistant",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -256,
+        -80
+      ],
+      "id": "46fd5a45-8313-491c-83fa-da935aee5e27",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "8Zj6lX30S9FB1PjS",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "07e7e106-4b8e-447c-a73f-c36dd4b1debe",
+              "name": "sender",
+              "value": "={{$json.From}}",
+              "type": "string"
+            },
+            {
+              "id": "7e6f6984-9210-47c9-a0aa-a450cb946ce3",
+              "name": "=subject",
+              "value": "={{$json.Subject}}",
+              "type": "string"
+            },
+            {
+              "id": "10231412-b99b-4d80-8fdf-8404b8d54a65",
+              "name": "=emailBody ",
+              "value": "={{$json.snippet}}",
+              "type": "string"
+            },
+            {
+              "id": "2ff1d77e-c895-427d-a20b-2b1c820f5ac9",
+              "name": "=date ",
+              "value": "={{$json.internalDate}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        160,
+        -80
+      ],
+      "id": "d0187056-b2d8-41ad-93f0-c3ed1a401967",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "messageId": "={{$json.id}}"
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -48,
+        -80
+      ],
+      "id": "50ac9206-a685-410c-a48e-0a2896113c84",
+      "name": "Get a message",
+      "webhookId": "b975db5c-117a-428b-9859-0e211a833c57",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "8Zj6lX30S9FB1PjS",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Sender:\n{{ $json.sender }}\n\nSubject:\n{{ $json.subject }}\n\nEmail:\n{{ $json[\"emailBody \"] }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are an AI Email Assistant.\n\nAnalyze every email.\n\nReturn:\n\n- summary\n- category\n- priority\n- suggested_reply\n- needs_reply\n- action_items\n- meeting_date\n- meeting_time\n\nRules:\n\ncategory:\nBusiness\nSupport\nPersonal\nInvoice\nMarketing\nSpam\nOther\n\npriority:\nHigh\nMedium\nLow\n\nneeds_reply:\ntrue or false\n\naction_items:\nList all requested actions.\n\nmeeting_date:\nReturn the date in YYYY-MM-DD format.\nIf no meeting exists return \"None\".\n\nmeeting_time:\nReturn the time in 24-hour HH:mm format.\nIf no meeting exists return \"None\"."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        368,
+        -80
+      ],
+      "id": "8a1b5113-d579-47da-8d45-3fbafd09da92",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        128
+      ],
+      "id": "9c1796ed-549d-49d2-b1da-613ae55edefa",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "KV7iQPHuEqi7gXJZ",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1ikDyMhYXUWuo-XEej3wpPFNHgRRYY1X36pyHtig-vDI",
+          "mode": "list",
+          "cachedResultName": "email ai assistant",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ikDyMhYXUWuo-XEej3wpPFNHgRRYY1X36pyHtig-vDI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ikDyMhYXUWuo-XEej3wpPFNHgRRYY1X36pyHtig-vDI/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Summary": "={{ $json.output.summary }}",
+            "Category": "={{ $json.output.category }}",
+            "Priority": "={{ $json.output.priority }}",
+            "Needs Reply": "={{ $json.output.needs_reply }}",
+            "Action Items": "={{ $json.output.action_items }}",
+            "Meeting Date": "={{ $json.output.meeting_date }}",
+            "Meeting Time": "={{ $json.output.meeting_time }}",
+            "Suggested Reply": "={{ $json.output.action_items[3] }}",
+            "Date": "={{ $('Edit Fields').item.json['date '] }}",
+            "Sender": "={{ $('Edit Fields').item.json.sender }}",
+            "Subject": "={{ $('Edit Fields').item.json.subject }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Sender",
+              "displayName": "Sender",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subject",
+              "displayName": "Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Priority",
+              "displayName": "Priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Needs Reply",
+              "displayName": "Needs Reply",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Action Items",
+              "displayName": "Action Items",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Meeting Date",
+              "displayName": "Meeting Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Meeting Time",
+              "displayName": "Meeting Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Suggested Reply",
+              "displayName": "Suggested Reply",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        784,
+        -96
+      ],
+      "id": "a458ec91-298c-4577-bb78-f9a4882d711c",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "yV08VMuNlVgpvB2g",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"summary\": \"string\",\n  \"category\": \"string\",\n  \"priority\": \"string\",\n  \"suggested_reply\": \"string\",\n  \"needs_reply\": true,\n  \"action_items\": [\n    \"string\"\n  ],\n  \"meeting_date\": \"YYYY-MM-DD\",\n  \"meeting_time\": \"HH:mm\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        544,
+        128
+      ],
+      "id": "cc7e9a5f-a2ab-460c-9e75-db0691ffd264",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "48d40cbe-6ddc-4f2e-8206-a0b1f71db26c",
+              "leftValue": "={{$json['Meeting Date']}}",
+              "rightValue": "=none",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1040,
+        -144
+      ],
+      "id": "66126495-d94b-4414-b9d0-3711c269f9c5",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "om01158946425@gmail.com",
+          "mode": "list",
+          "cachedResultName": "om01158946425@gmail.com"
+        },
+        "start": "={{ $json[\"Meeting Date\"] + \"T\" + $json[\"Meeting Time\"] + \":00\" }}",
+        "end": "={{ $json[\"Meeting Date\"] + \"T16:00:00\" }}",
+        "useDefaultReminders": "={{ false }}",
+        "additionalFields": {
+          "description": "=From: {{ $json.Sender }}  Summary:{{ $json.Summary }}   Action Items:{{ $json['Action Items'] }}",
+          "summary": "=Meeting -  {{$json.subject}}"
+        },
+        "remindersUi": {
+          "remindersValues": []
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        1264,
+        -160
+      ],
+      "id": "1630fb71-74a9-4ea0-ada0-18a4cd9d638a",
+      "name": "Create an event",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "Ljayz6Kpietnq922",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "8497125697",
+        "text": "={{\n`📧 New Email Analysis\n\n👤 Sender: ${$('Get a message').item.json.sender}\n\n📝 Subject: ${$('Get a message').item.json.subject}\n\n📌 Summary:\n${$('AI Agent').item.json.output.summary}\n\n📂 Category: ${$('AI Agent').item.json.output.category}\n\n⚡ Priority: ${$('AI Agent').item.json.output.priority}\n\n💬 Suggested Reply:\n${$('AI Agent').item.json.output.suggested_reply}\n\n📅 Meeting Date: ${$('AI Agent').item.json.output.meeting_date || 'No meeting'}\n\n🕒 Meeting Time: ${$('AI Agent').item.json.output.meeting_time || 'No meeting'}\n\n✅ Action Items:\n${$('AI Agent').item.json.output.action_items?.join('\\n- ') || 'None'}\n`\n}}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1520,
+        -176
+      ],
+      "id": "966cd990-42ef-4232-acbe-5b9f873ea18d",
+      "name": "Send a text message",
+      "webhookId": "f1b2e9c1-7df9-42ee-a73b-8e709c6bd333",
+      "credentials": {
+        "telegramApi": {
+          "id": "ECTfkL3VRMYOC2F6",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a message": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Create an event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create an event": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "f700a481-fb54-4118-974e-f84466be4bdc",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3fc4129fbcfd420e1811e93408658cd299ad81573e0a631cfc0d600cff7a68d4"
+  },
+  "id": "UECpfMxLv0pZfv0Q",
+  "tags": []
+}
