@@ -76,6 +76,23 @@ The AI extracts:
 
 ## 👨‍💻 Author
 
+## Screenshots
+
+### Workflow
+![Workflow](screenshots/workflow.png)
+
+### AI Agent
+![AI Agent](screenshots/ai-agent.png)
+
+### Google Sheet
+![Google Sheet](screenshots/google-sheet.png)
+
+### Google Calendar
+![Calendar](screenshots/calendar-event.png)
+
+### Telegram Notification
+![Telegram](screenshots/telegram-message.png)
+
 **Omar Mohammed**
 
 Computer Engineering Student
